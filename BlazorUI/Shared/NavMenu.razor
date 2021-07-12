@@ -1,0 +1,46 @@
+﻿@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+<UserCard />
+<MudDivider Class="mb-0" />
+<MudNavMenu>
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">Home</MudNavLink>
+    <MudListSubheader Class="mt-2 mb-n2">Reporting</MudListSubheader>
+    <MudNavLink Href="/dashboard" Icon="@Icons.Material.Outlined.Dashboard">
+        Dashboard
+    </MudNavLink>
+    <MudNavLink Href="/account" Icon="@Icons.Material.Outlined.SupervisorAccount">
+        Account
+    </MudNavLink>
+    <MudNavLink Href="/document-store" Icon="@Icons.Material.Outlined.AttachFile">
+        Document Store
+    </MudNavLink>
+    <MudNavLink Href="/audit-trails" Icon="@Icons.Material.Outlined.Security">
+        Audit Trails
+    </MudNavLink>
+    @if (_authorizationService.AuthorizeAsync(AuthenticationStateProviderUser, Permissions.Roles.View).Result.Succeeded || _authorizationService.AuthorizeAsync(AuthenticationStateProviderUser, Permissions.Users.View).Result.Succeeded)
+    {
+        <MudListSubheader Class="mt-2 mb-n2">
+            Administrator
+        </MudListSubheader>
+        @if (_authorizationService.AuthorizeAsync(AuthenticationStateProviderUser, Permissions.Users.View).Result.Succeeded)
+        {
+            <MudNavLink Href="/identity/users" Icon="@Icons.Material.Outlined.Person">
+                Users
+            </MudNavLink>
+        }
+        @if (_authorizationService.AuthorizeAsync(AuthenticationStateProviderUser, Permissions.Roles.View).Result.Succeeded)
+        {
+            <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Outlined.Person">Roles</MudNavLink>
+        }
+    }
+</MudNavMenu>
+
+@code {
+    private ClaimsPrincipal AuthenticationStateProviderUser { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        AuthenticationStateProviderUser = await _stateProvider.GetAuthenticationStateProviderUserAsync();
+    }
+}
